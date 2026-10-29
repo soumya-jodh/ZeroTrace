@@ -1,0 +1,5 @@
+cryptography>=43
+reportlab>=4
+qrcode>=8
+
+flask>=3.0

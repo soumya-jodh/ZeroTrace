@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ZeroTrace-OS</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">ZT</div><div><b>ZeroTrace</b><span>OS · Secure Sanitization</span></div></div>
+    <nav>
+      <button class="nav active" data-page="dashboard">◈ <span>Dashboard</span></button>
+      <button class="nav" data-page="sanitize">▣ <span>Sanitize</span></button>
+      <button class="nav" data-page="verify">✓ <span>Verification</span></button>
+      <button class="nav" data-page="certificate">▤ <span>Certificate</span></button>
+      <button class="nav" data-page="history">◷ <span>History</span></button>
+    </nav>
+    <div class="sidebar-bottom"><div class="offline-dot"></div> Offline mode<br><small>No external database required</small></div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar"><div><div class="eyebrow">SECURE MEDIA SANITIZATION</div><h1 id="page-title">Storage Dashboard</h1></div><button class="refresh" onclick="loadDevices()">↻ Refresh</button></header>
+
+    <section id="dashboard" class="page active">
+      <div class="hero"><div><span class="pill">SYSTEM READY</span><h2>Sanitize storage with confidence.</h2><p>Hardware-aware planning, strict safety gates, verification and signed evidence in one local interface.</p></div><div class="hero-stat"><strong id="device-count">—</strong><span>storage devices detected</span></div></div>
+      <div class="section-head"><h3>Detected storage</h3><span id="last-refresh">—</span></div>
+      <div id="device-grid" class="device-grid"></div>
+    </section>
+
+    <section id="sanitize" class="page">
+      <div class="section-head"><div><h3>Sanitization workspace</h3><p>Select a device and review every safety detail before execution.</p></div><button class="secondary" onclick="showPage('dashboard')">← Devices</button></div>
+      <div id="sanitize-empty" class="empty">Select an eligible device from the Dashboard.</div>
+      <div id="sanitize-workspace" class="workspace hidden">
+        <div class="panel selected-panel"><div class="panel-label">SELECTED TARGET</div><div class="target-title"><span id="s-icon">●</span><div><h2 id="s-path">—</h2><span id="s-type">—</span></div></div><div class="detail-grid" id="s-details"></div></div>
+        <div class="panel"><div class="panel-label">SANITIZATION PLAN</div><div id="s-plan"></div></div>
+        <div class="panel danger-panel"><div class="panel-label">DESTRUCTIVE ACTION</div><p>This operation permanently erases data on the selected whole disk. Verify the device identity before continuing.</p><label class="check"><input type="checkbox" id="ack"> I understand that all data on this target will be erased.</label><label>Type the exact device path<input id="confirm-path" placeholder="/dev/sdb"></label><button id="sanitize-btn" class="danger" onclick="startSanitize()">Start Sanitization</button></div>
+        <div class="panel log-panel"><div class="panel-label">LIVE ENGINE OUTPUT</div><pre id="job-log">Waiting for operation…</pre></div>
+      </div>
+    </section>
+
+    <section id="verify" class="page">
+      <div class="section-head"><div><h3>Post-sanitization verification</h3><p>Read-only checks validate the completed operation and its evidence.</p></div></div>
+      <div class="verify-card"><div class="verify-icon">✓</div><div><h2>Verification center</h2><p>Choose the target used for the latest sanitization audit, then run the read-only verifier.</p></div><select id="verify-device"></select><button class="primary" onclick="startVerify()">Run Read-Only Verification</button></div>
+      <div class="panel log-panel"><div class="panel-label">VERIFICATION OUTPUT</div><pre id="verify-log">No verification run yet.</pre></div>
+    </section>
+
+    <section id="certificate" class="page">
+      <div class="section-head"><div><h3>Certificate & integrity</h3><p>Generate an Ed25519-signed certificate only from a verified audit record.</p></div></div>
+      <div class="cert-grid"><div class="panel"><div class="panel-label">SIGNED EVIDENCE</div><h2>Certificate of Sanitization</h2><p>The certificate contains device identity, method, timestamps, verification evidence, SHA-256 integrity data and an Ed25519 signature.</p><button class="primary" onclick="generateCert()">Generate Certificate</button><div id="cert-links" class="links hidden"><a href="/api/certificate/pdf">PDF certificate</a><a href="/api/certificate/json">Signed JSON</a></div></div><div class="panel"><div class="panel-label">LOCAL CERTIFICATE</div><p>Verify the currently generated local certificate.</p><button class="secondary" onclick="verifyCert()">Verify Local Signature</button><div id="cert-result" class="result">—</div></div></div>
+      <div class="panel upload-panel"><div class="panel-label">VERIFY AN EXTERNAL CERTIFICATE</div><h2>Upload signed certificate</h2><p>Choose a ZeroTrace <strong>.json</strong> certificate received from another machine. The file is checked for SHA-256 integrity and Ed25519 signature validity without being stored.</p><label class="upload-box" for="certificate-upload"><span class="upload-icon">↑</span><span><b id="upload-name">Choose certificate JSON</b><small>Maximum 2 MB · JSON only</small></span><input id="certificate-upload" type="file" accept="application/json,.json" onchange="handleCertificateFile(this)"></label><button id="upload-verify-btn" class="primary" onclick="verifyUploadedCertificate()" disabled>Verify Uploaded Certificate</button><div id="upload-result" class="result">No external certificate checked yet.</div></div>
+      <div class="panel log-panel"><div class="panel-label">CERTIFICATE OUTPUT</div><pre id="cert-log">No certificate operation yet.</pre></div>
+    </section>
+
+    <section id="history" class="page">
+      <div class="section-head"><div><h3>Operation history</h3><p>Local audit records generated by ZeroTrace.</p></div><button class="secondary" onclick="loadHistory()">↻ Refresh</button></div>
+      <div id="history-list" class="history-list"></div>
+    </section>
+  </main>
+</div>
+<div id="toast" class="toast"></div>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body></html>
